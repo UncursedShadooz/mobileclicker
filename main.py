@@ -8,53 +8,129 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.uix.popup import Popup
 from kivy.lang import Builder
+from kivy.properties import StringProperty
 
 # Define the screens in Kv language for cleaner structure
 Builder.load_string("""
-<MenuScreen>:
+<MainScreen>:
     BoxLayout:
         orientation: 'vertical'
         Label:
-            text: 'Welcome to the Calculator'
+            id: display_label
+            text: root.display_text
+            font_size: 32
         BoxLayout:
             orientation: 'horizontal'
             Button:
-                text: '1'
+                text: 'C'
+                on_press: root.clear_all()
             Button:
-                text: '2'
-            Button:
-                text: '3'
-        BoxLayout:
-            orientation: 'horizontal'
-            Button:
-                text: '4'
-            Button:
-                text: '5'
-            Button:
-                text: '6'
+                text: 'CE'
+                on_press: root.remove_char()
         BoxLayout:
             orientation: 'horizontal'
             Button:
                 text: '7'
+                on_press: root.add_char(self.text)
             Button:
                 text: '8'
+                on_press: root.add_char(self.text)
             Button:
                 text: '9'
+                on_press: root.add_char(self.text)
+            Button:
+                text: '+'
+                on_press: root.add_char(self.text)
+                on_press: root.set_operator(self.text)
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                text: '4'
+                on_press: root.add_char(self.text)
+            Button:
+                text: '5'
+                on_press: root.add_char(self.text)
+            Button:
+                text: '6'
+                on_press: root.add_char(self.text)
+            Button:
+                text: '-'
+                on_press: root.set_operator(self.text)
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                text: '1'
+                on_press: root.add_char(self.text)
+            Button:
+                text: '2'
+                on_press: root.add_char(self.text)
+            Button:
+                text: '3'
+                on_press: root.add_char(self.text)
+            Button:
+                text: '*'
+                on_press: root.set_operator(self.text)
+        BoxLayout:
+            orientation: 'horizontal'
+            Button:
+                text: '0'
+                on_press: root.add_char(self.text)
+            Button:
+                text: ','
+                on_press: root.add_char(self.text)
+            Button:
+                text: '='
+                on_press: root.calculate()
+            Button:
+                text: '/'
+                on_press: root.set_operator(self.text)
 """)
 
-# 1. Subclass the Screen class for each screen you need
-class MenuScreen(Screen):
-    pass
+class MainScreen(Screen):
+    display_text = StringProperty("")
+    first_value = ""
+    operator = ""
+    
+    def add_char(self, char):
+        self.display_text += char
 
-# 2. Create the main application class
+    def remove_char(self):
+        if self.display_text:
+            self.display_text = self.display_text[:-1]
+            
+    def clear_all(self):
+        self.display_text = ""
+        self.first_value = ""
+        self.operator = ""
+    
+    def set_operator(self, op):
+        if not self.display_text:
+            return
+        if self.display_text[-1] in "+-*/":
+            return
+
+        self.first_value = self.display_text
+        self.operator = op
+        self.display_text = ""
+        
+    def calculate(self):
+        if self.first_value and self.operator and self.display_text:
+            expression = f"{self.first_value}{self.operator}{self.display_text}"
+
+            try:
+                result = str(eval(expression))
+                self.display_text = result
+            except Exception:
+                self.display_text = ""
+
+            # reset post-calc
+            self.first_value = ""
+            self.operator = ""
+
 class ScreenApp(App):
     def build(self):
-        # 3. Create the ScreenManager instance
         sm = ScreenManager()
-        
-        # 4. Add your custom screens to the manager
-        sm.add_widget(MenuScreen(name='menu'))
-        
+        sm.add_widget(MainScreen(name='main'))
         return sm
 
 if __name__ == '__main__':
