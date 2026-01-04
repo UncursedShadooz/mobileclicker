@@ -12,7 +12,13 @@ from kivy.properties import StringProperty
 
 # Define the screens in Kv language for cleaner structure
 Builder.load_string("""
-<MainScreen>:
+<Menu>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Welcome to the Menu!"
+            font_size: 32
+<Calculator>:
     BoxLayout:
         orientation: 'vertical'
         Label:
@@ -86,7 +92,10 @@ Builder.load_string("""
                 on_press: root.set_operator(self.text)
 """)
 
-class MainScreen(Screen):
+class Menu(Screen):
+    pass
+
+class Calculator(Screen):
     display_text = StringProperty("")
     first_value = ""
     operator = ""
@@ -130,7 +139,7 @@ class MainScreen(Screen):
 class ScreenApp(App):
     def build(self):
         sm = ScreenManager()
-        sm.add_widget(MainScreen(name='main'))
+        sm.add_widget(Calculator(name='Calculator'))
         return sm
 
 if __name__ == '__main__':
